@@ -47,9 +47,10 @@ func (s *Server) CreatePrinter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	printerData, _ := json.Marshal(printer)
 	cmd := raftcore.FSMCommand{
 		Type: "printer",
-		Data: printer,
+		Data: printerData,
 	}
 
 	data, _ := json.Marshal(cmd)
@@ -90,9 +91,10 @@ func (s *Server) CreateFilament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filamentData, _ := json.Marshal(filament)
 	cmd := raftcore.FSMCommand{
 		Type: "filament",
-		Data: filament,
+		Data: filamentData,
 	}
 
 	fmt.Println("Applying filament to Raft")
@@ -144,9 +146,10 @@ func (s *Server) CreatePrintJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	jobData, _ := json.Marshal(job)
 	cmd := raftcore.FSMCommand{
 		Type: "print_job",
-		Data: job,
+		Data: jobData,
 	}
 	data, _ := json.Marshal(cmd)
 	fmt.Println("Submitting print job to Raft:", job)
@@ -188,12 +191,13 @@ func (s *Server) UpdatePrintJobStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	updateData, _ := json.Marshal(map[string]interface{}{
+		"id":     id,
+		"status": status,
+	})
 	cmd := raftcore.FSMCommand{
 		Type: "update_status",
-		Data: map[string]interface{}{
-			"id":     id,
-			"status": status,
-		},
+		Data: updateData,
 	}
 	data, _ := json.Marshal(cmd)
 	future := s.RaftNode.Raft.Apply(data, raftcore.ApplyTimeout)
